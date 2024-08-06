@@ -45,8 +45,7 @@ const ScoreboardWrapper = () => {
     }, []);
 
     useEffect(() => {
-        const port = import.meta.env.VITE_WEBSOCKET_PORT;
-        const websocket = new WebSocket(`ws://localhost:${port}`);
+        const websocket = new WebSocket("ws://" + location.host);
 
         websocket.onopen = () => {
             console.log("WebSocket connection opened");

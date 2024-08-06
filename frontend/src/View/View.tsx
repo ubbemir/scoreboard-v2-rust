@@ -26,8 +26,7 @@ const View = () => {
 
     useEffect(() => {
         console.log("max limit:", maxLimit);
-        const port = import.meta.env.VITE_WEBSOCKET_PORT;
-        const ws = new WebSocket(`ws://localhost:${port}`);
+        const ws = new WebSocket("ws://" + location.host);
 
         ws.onopen = () => {
             console.log("WebSocket connection opened");
