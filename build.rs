@@ -8,6 +8,7 @@ fn main() {
     let node_modules_path = frontend_path.join("node_modules");
 
     let public_path = Path::new("public");
+    println!("cargo:rerun-if-changed=public/");
 
     if public_path.exists() {
         std::process::exit(0); // if public exists we want to use cached built frontend
