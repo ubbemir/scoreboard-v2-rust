@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.form-input {
+    @apply bg-gray-800 border border-gray-700 
+        focus:border-white focus:outline-none
+        text-white placeholder-gray-400 rounded-lg p-2.5 mb-2.5;
+}
+
+.form-button {
+    @apply bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
