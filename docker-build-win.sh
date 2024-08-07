@@ -1,0 +1,1 @@
+docker build --output=. --target=winbinary .

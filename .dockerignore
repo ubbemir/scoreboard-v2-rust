@@ -1,0 +1,10 @@
+public/
+target/
+bin/
+
+Cargo.lock
+
+.git/
+.gitignore
+
+.vscode/
