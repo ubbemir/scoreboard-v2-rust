@@ -11,7 +11,7 @@ COPY ./frontend/ .
 RUN npm run build
 
 # Stage 2: Rust environment for building the backend
-FROM rust:latest AS rust-build
+FROM rust:latest AS rust-build-dependencies
 
 RUN apt-get update \
     && apt-get install -y mingw-w64 \
@@ -27,6 +27,7 @@ RUN cargo build --release --target x86_64-pc-windows-gnu
 RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 
 
+FROM rust-build-dependencies AS rust-build
 COPY . .
 
 COPY --from=node-build /frontend/dist /project/frontend/dist
