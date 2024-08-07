@@ -1,8 +1,13 @@
 use std::process::Command;
 use std::fs;
 use std::path::Path;
+use std::env;
 
 fn main() {
+    if env::var("RUN_BUILD_RS").unwrap_or("true".to_string()) == "false" {
+        std::process::exit(0); // dont build frontend
+    }
+
     let frontend_path = Path::new("frontend");
     let dist_path = frontend_path.join("dist");
     let node_modules_path = frontend_path.join("node_modules");

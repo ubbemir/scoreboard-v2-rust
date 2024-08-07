@@ -19,9 +19,17 @@ RUN apt-get update \
 
 WORKDIR /project
 
-COPY --from=node-build /frontend/dist /project/frontend/dist
+# Build dependencies first so they can be cached
+COPY dummy.rs .
+COPY Cargo.toml .
+RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
+RUN cargo build --release --target x86_64-pc-windows-gnu
+RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
+
+
 COPY . .
 
+COPY --from=node-build /frontend/dist /project/frontend/dist
 RUN rm -rf public && mkdir public && cp -r ./frontend/dist/* public/
 
 RUN cargo build --release --target x86_64-pc-windows-gnu

@@ -3,6 +3,10 @@ name = "scoreboard-v2-rust"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "scoreboard-v2-rust"
+path = "src/main.rs"
+
 [dependencies]
 warp = "0.3.7"
 tokio = { version = "1", features = ["full"] }
