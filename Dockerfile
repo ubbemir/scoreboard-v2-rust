@@ -3,10 +3,11 @@ FROM node:20 AS node-build
 
 WORKDIR /frontend
 
-COPY ./frontend/ .
-
+COPY ./frontend/package.json ./frontend/package-lock.json .
 RUN npm install
 
+# Then copy the rest of the frontend source and build it
+COPY ./frontend/ .
 RUN npm run build
 
 # Stage 2: Rust environment for building the backend
