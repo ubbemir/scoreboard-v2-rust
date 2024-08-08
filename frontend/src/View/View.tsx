@@ -30,6 +30,7 @@ const View = () => {
 
         ws.onopen = () => {
             console.log("WebSocket connection opened");
+            ws.send("fetch");
         };
 
         ws.onmessage = (event) => {

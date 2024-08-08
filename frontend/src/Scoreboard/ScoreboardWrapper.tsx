@@ -2,7 +2,7 @@ import { useModal } from "../Modal/ModalContext"
 import ScoreboardDisplay from "./ScoreboardDisplay"
 import ScoreboardForm from "./ScoreboardForm"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 type ScoreboardEntry = {
     name: string,
@@ -10,10 +10,7 @@ type ScoreboardEntry = {
 }
 
 function useSortedStateWithStorage(key: string, initialValue: ScoreboardEntry[]): [ScoreboardEntry[], (newValue: ScoreboardEntry[]) => void] {
-    const [array, setArray] = useState(() => {
-        const savedArray = localStorage.getItem(key)
-        return savedArray ? JSON.parse(savedArray) : initialValue
-    })
+    const [array, setArray] = useState(initialValue)
 
     const setProcessedValue = (newValue: ScoreboardEntry[]) => {
         const newEntries = [...newValue]
@@ -37,7 +34,8 @@ function useSortedStateWithStorage(key: string, initialValue: ScoreboardEntry[])
 const ScoreboardWrapper = () => {
     const maxEntries = 50;
 
-    const [entries, setEntries] = useSortedStateWithStorage("scoreboard", []);
+    const storageKey = "scoreboard"
+    const [entries, setEntries] = useSortedStateWithStorage(storageKey, []);
     const [ws, setWs] = useState<WebSocket | null>(null);
     const { showModal } = useModal()
 
@@ -54,9 +52,15 @@ const ScoreboardWrapper = () => {
             () => {
                 setEntries([])
             },
-            () => {}
+            () => { }
         );
     }
+
+    // use reference so we have an updated reference to the entries on ws message
+    const entriesRef = useRef(entries);
+    useEffect(() => {
+        entriesRef.current = entries;
+    }, [entries]);
 
     useEffect(() => {
         const websocket = new WebSocket("ws://" + location.host);
@@ -65,6 +69,12 @@ const ScoreboardWrapper = () => {
             console.log("WebSocket connection opened");
             setWs(websocket);
         };
+
+        websocket.onmessage = (event) => {
+            if (event.data == "fetch") {
+                setEntries(entriesRef.current)
+            }
+        }
 
         websocket.onerror = (error) => {
             console.error("WebSocket error", error);
@@ -84,6 +94,13 @@ const ScoreboardWrapper = () => {
             ws.send(JSON.stringify(entries));
         }
     }, [entries, ws]);
+
+    useEffect(() => {
+        const items = localStorage.getItem(storageKey);
+        if (items) {
+            setEntries(JSON.parse(items));
+        }
+    }, []);
 
     return (
         <div className="flex h-screen bg-gray-900">
