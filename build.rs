@@ -15,8 +15,9 @@ fn main() {
     let public_path = Path::new("public");
     println!("cargo:rerun-if-changed=public/");
 
+    #[cfg(feature = "cache_frontend")]
     if public_path.exists() {
-        std::process::exit(0); // if public exists we want to use cached built frontend
+        std::process::exit(0); // if public exists we don't want to rebuild frontend
     }
 
     if !node_modules_path.exists() {

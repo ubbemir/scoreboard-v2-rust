@@ -17,3 +17,6 @@ mime_guess = "2.0.5"
 
 [profile.release]
 strip = true
+
+[features]
+cache_frontend = []
