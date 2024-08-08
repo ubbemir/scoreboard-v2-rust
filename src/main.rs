@@ -35,6 +35,7 @@ async fn main() {
         wss.or(public)
     );
 
+    println!("Version {}", env!("CARGO_PKG_VERSION"));
     println!("Scoreboard started on http://{}", INTERFACE);
     println!("Add http://{}/view to OBS Browsercapture", INTERFACE);
 
