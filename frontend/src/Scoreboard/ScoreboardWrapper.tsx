@@ -1,3 +1,4 @@
+import { useModal } from "../Modal/ModalContext"
 import ScoreboardDisplay from "./ScoreboardDisplay"
 import ScoreboardForm from "./ScoreboardForm"
 
@@ -8,23 +9,37 @@ type ScoreboardEntry = {
     time: number // in seconds
 }
 
-function useSortedState(initialValue: ScoreboardEntry[]): [ScoreboardEntry[], (newValue: ScoreboardEntry[]) => void] {
-    const [value, setValue] = useState<ScoreboardEntry[]>(initialValue)
+function useSortedStateWithStorage(key: string, initialValue: ScoreboardEntry[]): [ScoreboardEntry[], (newValue: ScoreboardEntry[]) => void] {
+    const [array, setArray] = useState(() => {
+        const savedArray = localStorage.getItem(key)
+        return savedArray ? JSON.parse(savedArray) : initialValue
+    })
 
     const setProcessedValue = (newValue: ScoreboardEntry[]) => {
         const newEntries = [...newValue]
         newEntries.sort((a, b) => b.time - a.time)
-        setValue(newEntries)
+        setArray(newEntries)
     }
 
-    return [value, setProcessedValue]
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            localStorage.setItem(key, JSON.stringify(array));
+        }, 500) // Debounce: Save after 500ms of inactivity
+
+        return () => {
+            clearTimeout(handler);
+        }
+    }, [key, array])
+
+    return [array, setProcessedValue]
 }
 
 const ScoreboardWrapper = () => {
     const maxEntries = 50;
 
-    const [entries, setEntries] = useSortedState([]);
+    const [entries, setEntries] = useSortedStateWithStorage("scoreboard", []);
     const [ws, setWs] = useState<WebSocket | null>(null);
+    const { showModal } = useModal()
 
 
     const addEntry = (name: string, time: number) => {
@@ -33,22 +48,22 @@ const ScoreboardWrapper = () => {
     const onEntryDelete = (index: number) => {
         setEntries(entries.filter((_, i) => i !== index))
     }
-
-    useEffect(() => {
-        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-            event.preventDefault();
-        };
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, []);
+    const clearEntries = () => {
+        showModal(
+            'Are you sure you want to clear the scoreboard?',
+            () => {
+                setEntries([])
+            },
+            () => {}
+        );
+    }
 
     useEffect(() => {
         const websocket = new WebSocket("ws://" + location.host);
 
         websocket.onopen = () => {
             console.log("WebSocket connection opened");
+            setWs(websocket);
         };
 
         websocket.onerror = (error) => {
@@ -58,8 +73,6 @@ const ScoreboardWrapper = () => {
         websocket.onclose = () => {
             console.log("WebSocket connection closed");
         };
-
-        setWs(websocket);
 
         return () => {
             websocket.close();
@@ -73,12 +86,15 @@ const ScoreboardWrapper = () => {
     }, [entries, ws]);
 
     return (
-        <div className="flex h-screen">
-            <div className="w-1/4 bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen">
+        <div className="flex h-screen bg-gray-900">
+            {
+                entries.length > 0 && <button className="form-button fixed bottom-5 left-5" onClick={clearEntries}>Clear List</button>
+            }
+            <div className="w-1/4 text-gray-100 flex items-center justify-center min-h-screen">
                 <ScoreboardForm onSubmit={addEntry} />
             </div>
 
-            <div className="flex-1 bg-gray-900">
+            <div className="flex-1">
                 <ScoreboardDisplay entries={entries} onEntryDeleted={onEntryDelete} maxLimit={maxEntries} />
             </div>
         </div>
