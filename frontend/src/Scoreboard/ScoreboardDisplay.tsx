@@ -43,7 +43,7 @@ const ScoreboardDisplay: FC<ScoreboardDisplayProps> = ({ entries, maxLimit, onEn
 
                         return (
                             <li key={index} onClick={() => { onEntryDeleted(index) }} className="flex flex-auto justify-left items-center cursor-pointer select-none p-1">
-                                <p className={getColor(index) + " p-2.5 rounded-md mx-2.5"}>{index + 1}</p>
+                                <p className={getColor(index) + " p-2.5 rounded-md mx-2.5 font-bold text-white text-shadow"}>{index + 1}</p>
                                 <p className="text-white mx-2.5">{entry.name}</p>
                                 <p className="text-white font-bold">{formatTime(entry.time)}</p>
                             </li>
