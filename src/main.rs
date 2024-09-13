@@ -1,3 +1,7 @@
+/*
+    Websocket handler based off Warp example code: https://github.com/seanmonstar/warp/blob/master/examples/websockets_chat.rs
+*/
+
 use std::net::{Ipv4Addr, SocketAddrV4};
 use std::collections::HashMap;
 use std::sync::{
