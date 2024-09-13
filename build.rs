@@ -23,7 +23,7 @@ fn main() {
     if !node_modules_path.exists() {
         println!("`node_modules` not found. Running `npm install`...");
         let install_output = Command::new("npm")
-            .args(&["install"])
+            .args(["install"])
             .current_dir(frontend_path)
             .output()
             .expect("Failed to run `npm install`");
@@ -39,7 +39,7 @@ fn main() {
 
     // Run `npm run build` in the `frontend` directory
     let output = Command::new("npm")
-        .args(&["run", "build"])
+        .args(["run", "build"])
         .current_dir(frontend_path)
         .output()
         .expect("Failed to run `npm run build`");
@@ -62,7 +62,7 @@ fn main() {
 
     // Copy files from `dist` to `public`
     if dist_path.exists() {
-        copy_dir_all(&dist_path, &public_path);
+        copy_dir_all(&dist_path, public_path);
     } else {
         eprintln!("`dist` directory does not exist");
         std::process::exit(1);
