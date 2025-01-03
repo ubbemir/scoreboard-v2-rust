@@ -1,1 +1,1 @@
-docker build --output=. --target=winbinary .
+docker build --output=. --target=winbinary --file=windows_build.Dockerfile .
