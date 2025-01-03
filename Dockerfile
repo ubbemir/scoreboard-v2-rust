@@ -14,8 +14,11 @@ RUN npm run build
 FROM rust:latest AS rust-build-dependencies
 
 RUN apt-get update \
-    && apt-get install -y mingw-w64 \
-    && rustup target add x86_64-pc-windows-gnu
+    && apt-get install -y mingw-w64
+
+RUN rustup toolchain install nightly \
+    && rustup target add --toolchain nightly x86_64-pc-windows-gnu \
+    && rustup component add rust-src --toolchain nightly
 
 WORKDIR /project
 
@@ -24,7 +27,7 @@ COPY dummy.rs .
 COPY Cargo.toml .
 COPY Cargo.lock .
 RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
-RUN RUN_BUILD_RS=false cargo build --release --target x86_64-pc-windows-gnu
+RUN RUN_BUILD_RS=false cargo +nightly build --release --target x86_64-pc-windows-gnu
 RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 
 
@@ -34,7 +37,8 @@ COPY . .
 COPY --from=node-build /frontend/dist /project/frontend/dist
 RUN rm -rf public && mkdir public && cp -r ./frontend/dist/* public/
 
-RUN RUN_BUILD_RS=false cargo build --release --target x86_64-pc-windows-gnu
+RUN RUN_BUILD_RS=false cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort \
+    --release --target x86_64-pc-windows-gnu
 
 # Export final binary
 FROM scratch AS winbinary
