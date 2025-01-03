@@ -27,7 +27,8 @@ COPY dummy.rs .
 COPY Cargo.toml .
 COPY Cargo.lock .
 RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
-RUN RUN_BUILD_RS=false cargo +nightly build --release --target x86_64-pc-windows-gnu
+RUN RUN_BUILD_RS=false cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort \
+    --release --target x86_64-pc-windows-gnu
 RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 
 
